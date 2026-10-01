@@ -51,13 +51,13 @@ $$
 and successive slopes $s_0,s_1,\ldots,s_m$. Then it can be written exactly as
 
 $$
-p(x)=a+s_0x+\sum_{k=1}^{m}(s_k-s_{k-1})\operatorname{ReLU}(x-\xi_k),
+p(x)=a+s_0x+\sum_{k=1}^{m}(s_k-s_{k-1})\mathrm{ReLU}(x-\xi_k),
 $$
 
 where
 
 $$
-\operatorname{ReLU}(z)=\max(0,z).
+\mathrm{ReLU}(z)=\max(0,z).
 $$
 
 Each ReLU is simply a **hinge basis function**. Crossing a breakpoint changes the slope by the corresponding coefficient.
