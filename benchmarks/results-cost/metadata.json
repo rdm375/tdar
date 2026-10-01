@@ -1,0 +1,35 @@
+{
+  "experiment": "oracle-call efficiency",
+  "call_budgets": [
+    48,
+    96,
+    192,
+    384
+  ],
+  "random_lhs_trials": 5,
+  "heldout_points": 8192,
+  "heldout_generator": "scrambled Sobol seed=20261001",
+  "surrogate": "scipy.interpolate.LinearNDInterpolator",
+  "oracle_precision": "float64",
+  "jax_enable_x64": true,
+  "fd_schemes": [
+    "forward",
+    "central"
+  ],
+  "fd_steps": [
+    0.01,
+    0.003,
+    0.001,
+    0.0003,
+    0.0001,
+    3e-05,
+    1e-05,
+    1e-06
+  ],
+  "cost_accounting": {
+    "Random/LHS/Sobol": "1 scalar function call per location",
+    "TDAR-forward-FD": "3 scalar function calls per location",
+    "TDAR-central-FD": "5 scalar function calls per location"
+  },
+  "note": "Exact/autodiff gradients are intentionally excluded from cost-normalized rankings because their application-dependent derivative cost is unspecified."
+}

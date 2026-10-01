@@ -34,3 +34,30 @@ python benchmarks/run_benchmarks.py --problems curved_ridge --budgets 16 32 --tr
 ```
 
 Benchmark dependencies are development/documentation dependencies and are not imported by the `tdar` runtime package.
+
+## Oracle-call cost benchmark
+
+`run_cost_benchmarks.py` is a separate experiment that compares methods under a
+budget of scalar function calls. Random, LHS, and Sobol spend one call per
+location. TDAR obtains gradients by bounded finite differences and is charged
+for every perturbation: 3 calls/location for forward differences and 5 for
+central differences in 2-D. Near the unit-square boundary the finite-difference
+oracle switches to inward one-sided formulas and never samples outside the
+domain.
+
+The default study evaluates forward and central differences at steps `1e-3`,
+`1e-4`, `1e-5`, and `1e-6` using call budgets 48 through 768. Exact/autodiff
+TDAR is deliberately not assigned an artificial equivalent call cost; the
+existing `run_benchmarks.py` remains the sample-location-efficiency experiment.
+
+```bash
+python benchmarks/run_cost_benchmarks.py
+```
+
+For a quick smoke test:
+
+```bash
+python benchmarks/run_cost_benchmarks.py \
+  --problems curved_ridge --call-budgets 48 96 --trials 2 --heldout 2048 \
+  --schemes forward central --steps 1e-4
+```

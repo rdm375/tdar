@@ -12,6 +12,10 @@ from pathlib import Path
 import sys
 
 import jax
+
+# Benchmark functions are evaluated in double precision for reproducibility.
+jax.config.update("jax_enable_x64", True)
+
 import jax.numpy as jnp
 import numpy as np
 from scipy.stats import qmc
