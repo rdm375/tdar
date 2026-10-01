@@ -61,3 +61,29 @@ python benchmarks/run_cost_benchmarks.py \
   --problems curved_ridge --call-budgets 48 96 --trials 2 --heldout 2048 \
   --schemes forward central --steps 1e-4
 ```
+
+
+## Canonical oracle-cost benchmark
+
+The canonical cost-normalized experiment uses `h = 1e-3` for both forward and
+central finite differences. This value was selected after a separate float64
+sensitivity sweep on the curved-ridge problem; it is not tuned independently
+for each problem or call budget. The default call-budget grid is
+`48, 64, 96, 128, 160, 192, 256, 384, 512, 768`.
+
+Run the canonical experiment with:
+
+```bash
+python benchmarks/run_cost_benchmarks.py
+```
+
+The broad finite-difference step-size study remains reproducible as a separate
+experiment:
+
+```bash
+python benchmarks/run_fd_sensitivity.py --problems curved_ridge \
+  --call-budgets 48 96 192 384 --trials 5 --heldout 8192
+```
+
+This separation prevents step-size sweeps from being confused with the
+canonical method comparison.

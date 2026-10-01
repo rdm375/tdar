@@ -28,7 +28,7 @@ from finite_difference import finite_difference_oracle
 from metrics import error_metrics, piecewise_linear_predict
 
 PROBLEMS = {"quadratic": quadratic, "curved_ridge": curved_ridge, "multiscale": multiscale}
-DEFAULT_CALL_BUDGETS = (48, 64, 96, 128, 192, 256, 384, 512, 768)
+DEFAULT_CALL_BUDGETS = (48, 64, 96, 128, 160, 192, 256, 384, 512, 768)
 
 
 def evaluate(f, x): return np.asarray(jax.vmap(f)(jnp.asarray(x)), dtype=float)
@@ -106,7 +106,7 @@ def main():
     p.add_argument("--call-budgets",nargs="+",type=int,default=list(DEFAULT_CALL_BUDGETS))
     p.add_argument("--trials",type=int,default=20); p.add_argument("--heldout",type=int,default=32768)
     p.add_argument("--schemes",nargs="+",choices=("forward","central"),default=["forward","central"])
-    p.add_argument("--steps",nargs="+",type=float,default=[1e-2,3e-3,1e-3,3e-4,1e-4,3e-5,1e-5,1e-6])
+    p.add_argument("--steps",nargs="+",type=float,default=[1e-3], help="finite-difference step(s); canonical default is 1e-3")
     p.add_argument("--output",type=Path,default=ROOT/"benchmarks"/"results-cost")
     a=p.parse_args()
     if min(a.call_budgets)<48: p.error("call budgets must be >= 48 (16 initial TDAR locations × 3 forward-FD calls)")

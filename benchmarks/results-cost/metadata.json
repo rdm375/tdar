@@ -2,12 +2,18 @@
   "experiment": "oracle-call efficiency",
   "call_budgets": [
     48,
+    64,
     96,
+    128,
+    160,
     192,
-    384
+    256,
+    384,
+    512,
+    768
   ],
-  "random_lhs_trials": 5,
-  "heldout_points": 8192,
+  "random_lhs_trials": 20,
+  "heldout_points": 32768,
   "heldout_generator": "scrambled Sobol seed=20261001",
   "surrogate": "scipy.interpolate.LinearNDInterpolator",
   "oracle_precision": "float64",
@@ -17,14 +23,7 @@
     "central"
   ],
   "fd_steps": [
-    0.01,
-    0.003,
-    0.001,
-    0.0003,
-    0.0001,
-    3e-05,
-    1e-05,
-    1e-06
+    0.001
   ],
   "cost_accounting": {
     "Random/LHS/Sobol": "1 scalar function call per location",
