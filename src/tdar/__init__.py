@@ -1,5 +1,6 @@
-from .core import TDARConfig, TDARResult, sample
+"""Public API for TDAR."""
+from .core import TDARConfig, TDARResult, TDARStep, sample
 from .designs import farthest_point
 
-__all__ = ["TDARConfig", "TDARResult", "sample", "farthest_point"]
-__version__ = "0.1.0"
+__all__ = ["TDARConfig", "TDARResult", "TDARStep", "sample", "farthest_point"]
+__version__ = "0.2.0.dev0"

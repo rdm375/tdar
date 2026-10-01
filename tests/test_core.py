@@ -21,3 +21,22 @@ def test_affine_still_completes_budget():
     x=farthest_point(16,candidates=128)
     r=sample(affine,x,24,TDARConfig(fill_candidates=128))
     assert len(r.points)==24
+
+def test_history_is_opt_in_and_records_batches():
+    x=farthest_point(16,candidates=128,seed=7)
+    no_history=sample(quadratic,x,24,TDARConfig(fill_candidates=128,seed=7))
+    with_history=sample(quadratic,x,24,TDARConfig(fill_candidates=128,seed=7,record_history=True))
+    assert no_history.history == ()
+    assert len(with_history.history) == 1
+    step=with_history.history[0]
+    assert step.points.shape == (16,2)
+    assert step.proposed_points.shape == (8,2)
+    assert len(step.selected_entities) == 8
+    assert np.array_equal(no_history.points,with_history.points)
+
+
+def test_result_xy_aliases():
+    x=farthest_point(16,candidates=128)
+    r=sample(quadratic,x,24,TDARConfig(fill_candidates=128))
+    assert r.x is r.points
+    assert r.y is r.values
