@@ -2,8 +2,6 @@
 from dataclasses import dataclass, field
 from typing import Callable, Literal
 
-import jax
-import jax.numpy as jnp
 import numpy as np
 from scipy.spatial import Delaunay
 
@@ -62,9 +60,23 @@ class TDARResult:
         return self.values
 
 
-def evaluate_values_and_gradients(f: Callable, points: np.ndarray):
-    x = jnp.asarray(points)
-    return np.asarray(jax.vmap(f)(x)), np.asarray(jax.vmap(jax.grad(f))(x))
+def evaluate_oracle(oracle: Callable, points: np.ndarray):
+    """Evaluate a first-order oracle point-by-point.
+
+    The oracle must return ``(value, gradient)`` for one point. Keeping this
+    interface framework-neutral lets callers supply analytic sensitivities,
+    adjoints, autodiff adapters, or other derivative providers.
+    """
+    values = []
+    gradients = []
+    for point in np.asarray(points, float):
+        value, gradient = oracle(point)
+        values.append(float(np.asarray(value)))
+        g = np.asarray(gradient, float)
+        if g.shape != (2,):
+            raise ValueError("oracle gradient must have shape (2,)")
+        gradients.append(g)
+    return np.asarray(values, float), np.asarray(gradients, float)
 
 
 def _barycentric_lattice(order):
@@ -137,18 +149,19 @@ def _farthest_fill(existing, proposed, count, pool):
     return out
 
 
-def sample(f, initial_points, budget, config=TDARConfig()):
+def sample(oracle, initial_points, budget, config=TDARConfig()):
     """Run frozen TDAR v1 refinement on the unit square.
 
     Parameters
     ----------
-    f:
-        JAX-differentiable scalar function accepting one point of shape ``(2,)``.
+    oracle:
+        Callable accepting one point of shape ``(2,)`` and returning
+        ``(value, gradient)``. The gradient must have shape ``(2,)``.
     initial_points:
         Initial design with shape ``(n, 2)``. It should cover the unit square;
         :func:`tdar.farthest_point` is the standard initializer.
     budget:
-        Total number of function evaluations, including the initial design.
+        Total number of sampled locations, including the initial design.
     config:
         Method configuration. Set ``record_history=True`` for visualization or
         diagnostics; normal sampling avoids this storage overhead.
@@ -157,7 +170,7 @@ def sample(f, initial_points, budget, config=TDARConfig()):
     if points.ndim != 2 or points.shape[1] != 2: raise ValueError('initial_points must have shape (n, 2)')
     if budget < len(points): raise ValueError('budget cannot be smaller than initial sample count')
     if config.batch_size < 1 or config.maximin_order < 2 or config.min_separation_fraction < 0 or config.closure_ratio_threshold < 0: raise ValueError('invalid TDAR configuration')
-    values, gradients = evaluate_values_and_gradients(f, points)
+    values, gradients = evaluate_oracle(oracle, points)
     pool = np.random.default_rng(config.seed).random((config.fill_candidates, 2)); iterations = 0; history = []
     while len(points) < budget:
         remaining = budget - len(points); batch = min(config.batch_size, remaining); d = Delaunay(points); simplices = d.simplices
@@ -200,5 +213,5 @@ def sample(f, initial_points, budget, config=TDARConfig()):
                 triangle_indicators=np.asarray(ts, float).copy(), boundary_indicators=np.asarray(es, float).copy(),
                 proposed_points=new.copy(), selected_entities=tuple(selected_entities[:len(new)]),
             ))
-        nv, ng = evaluate_values_and_gradients(f, new); points = np.vstack([points, new]); values = np.concatenate([values, nv]); gradients = np.vstack([gradients, ng]); iterations += 1
+        nv, ng = evaluate_oracle(oracle, new); points = np.vstack([points, new]); values = np.concatenate([values, nv]); gradients = np.vstack([gradients, ng]); iterations += 1
     return TDARResult(points, values, gradients, iterations, tuple(history))

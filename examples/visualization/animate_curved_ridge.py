@@ -11,14 +11,14 @@ from matplotlib.collections import LineCollection
 HERE = Path(__file__).resolve()
 sys.path.insert(0, str(HERE.parents[1]))
 from problems import curved_ridge
-from tdar import TDARConfig, farthest_point, sample
+from tdar import TDARConfig, farthest_point, sample, jax_oracle
 
 
 def main(output=None, budget=128):
     output = Path(output) if output else HERE.parents[2] / "docs" / "assets" / "curved-ridge.gif"
     output.parent.mkdir(parents=True, exist_ok=True)
     initial = farthest_point(16)
-    result = sample(curved_ridge, initial, budget=budget, config=TDARConfig(record_history=True))
+    result = sample(jax_oracle(curved_ridge), initial, budget=budget, config=TDARConfig(record_history=True))
 
     grid = np.linspace(0.0, 1.0, 180)
     xx, yy = np.meshgrid(grid, grid)
