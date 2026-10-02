@@ -326,6 +326,27 @@ result = sample(
 
 The returned gradients are available as `result.gradients`, but TDAR does not prescribe the downstream surrogate.
 
+### Exporting the final simplicial CPWA surrogate
+
+TDAR can freeze its final Delaunay piecewise-linear interpolant into a small,
+generic interchange artifact for downstream compilers or surrogate runtimes:
+
+```python
+from tdar import save_simplicial_cpwa
+
+save_simplicial_cpwa(
+    result,
+    "surrogate.npz",
+    metadata={"target": "example"},
+)
+```
+
+The NPZ contains exactly `points`, `simplices`, and `values`. The final Delaunay
+connectivity is also available as `result.simplices`. Gradients are deliberately
+not exported because they guide TDAR refinement but are not part of the final
+simplicial CPWA function. When `metadata` is supplied, a human-readable JSON
+sidecar is written next to the NPZ.
+
 ---
 
 ## 10. Reproducing the visuals and experiments

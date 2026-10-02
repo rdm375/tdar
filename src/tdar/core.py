@@ -59,6 +59,11 @@ class TDARResult:
         """Alias for sampled scalar values."""
         return self.values
 
+    @property
+    def simplices(self) -> np.ndarray:
+        """Final Delaunay simplices defining the TDAR CPWA interpolant."""
+        return np.asarray(Delaunay(np.asarray(self.points, float)).simplices, dtype=np.int64)
+
 
 def evaluate_oracle(oracle: Callable, points: np.ndarray):
     """Evaluate a first-order oracle point-by-point.
