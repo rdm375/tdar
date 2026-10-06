@@ -431,3 +431,21 @@ The algorithm is frozen as **TDAR method v1**. The Python API remains pre-1.0 wh
 ## License
 
 GPL-3.0-or-later.
+
+## ThermoGPU methane-Z experiment
+
+TDAR can consume ThermoGPU's persistent `thermogpu_tdar_oracle --stdin`
+interface without Python bindings. The adapter maps TDAR's unit square to
+250--350 K and 1--10 MPa and applies the chain rule to return derivatives in
+normalized coordinates.
+
+```bash
+python examples/thermogpu_methane_z.py \
+  --oracle ../ThermoGPU/build/thermogpu_tdar_oracle \
+  --budget 128
+```
+
+The default output directory `benchmarks/results-thermogpu-methane-z/` contains
+`methane-z.npz` plus its simplicial-CPWA JSON sidecar, experiment metadata, and
+a TDAR refinement-history CSV. The adapter rejects malformed/non-finite oracle
+responses and, by default, any state not classified as `one_real`.
